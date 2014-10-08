@@ -1,0 +1,31 @@
+html {
+
+}
+
+div {
+	position: absolute;
+}
+
+#code {
+	background-color: rgb(200,200,200);
+	left: 0vw;
+	top: 0vh;
+	width: calc(100vw - 300px);
+	height: 75vh;
+}
+
+#vars {
+	background-color: rgb(130,130,130);
+	width: 300px;
+	height: 75vh;
+	right: 0px;
+	top: 0vh;
+}
+
+#console {
+	background-color: rgb(170,170,170);
+	width: 100vw;
+	height: 25vh;
+	left: 0vw;
+	top: 75vh;
+}
