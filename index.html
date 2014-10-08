@@ -3,17 +3,23 @@
 <head>
 	<title>MIPS Assembler VM</title>
 	<link rel=StyleSheet href='style.css'>
+	<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+	<script src='jquery-fieldselection.min.js'></script>
+	<script src='mips.js'></script>
+	<script src='ui.js'></script>
 </head>
 <body>
 	<div id='header'>
 	</div>
 	<div id='container'>
 		<div id='codeframe'>
-			<textarea id='codebox'></textarea>
+			<textarea id='codebox' class='textbox'></textarea>
 		</div>
 		<div id='varframe'>
+			<textarea id='varbox' class='textbox'></textarea>
 		</div>
 		<div id='consoleframe'>
+			<textarea id='consolebox' class='textbox'></textarea>
 		</div>
 	</div>
 	<div id='footer'>

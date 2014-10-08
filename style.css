@@ -30,9 +30,12 @@ div {
 	height: 75%;
 }
 
-#codebox {
+.textbox {
 	background-color: rgb(230,230,230);
-	
+	width: calc(100% - 16px);
+	height: calc(100% - 16px);
+	margin: 5px;
+	resize: none;
 }
 
 #varframe {
