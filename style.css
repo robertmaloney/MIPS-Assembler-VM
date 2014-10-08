@@ -2,30 +2,58 @@ html {
 
 }
 
+body {
+	margin: 0px;
+}
+
 div {
 	position: absolute;
 }
 
-#code {
-	background-color: rgb(200,200,200);
-	left: 0vw;
-	top: 0vh;
-	width: calc(100vw - 300px);
-	height: 75vh;
+#header {
+	background-color: rgb(100,100,100);
+	width: 100vw;
+	height: 100px;
 }
 
-#vars {
+#container {
+	top: 100px;
+	width: 100vw;
+	height: calc(100vh - 150px);
+}
+
+#codeframe {
+	background-color: rgb(200,200,200);
+	left: 0%;
+	top: 0%;
+	width: calc(100% - 300px);
+	height: 75%;
+}
+
+#codebox {
+	background-color: rgb(230,230,230);
+	
+}
+
+#varframe {
 	background-color: rgb(130,130,130);
 	width: 300px;
-	height: 75vh;
+	height: 75%;
 	right: 0px;
-	top: 0vh;
+	top: 0%;
 }
 
-#console {
+#consoleframe {
 	background-color: rgb(170,170,170);
 	width: 100vw;
-	height: 25vh;
-	left: 0vw;
-	top: 75vh;
+	height: 25%;
+	left: 0%;
+	top: 75%;
+}
+
+#footer {
+	background-color: rgb(100,100,100);
+	bottom: 0px;
+	height: 50px;
+	width: 100vw;
 }
