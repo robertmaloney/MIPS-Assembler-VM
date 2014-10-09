@@ -34,6 +34,8 @@ $(document).ready(
 				$fp:	{ val: 0, used: false }, // Preserved
 				$ra:	{ val: 0, used: false }  // Preserved
 			};
+			var labels = {};
+			var pc = 0;
 			var errors = {
 				numArgsError: "Not the correct number of arguments."
 			}
@@ -80,6 +82,37 @@ $(document).ready(
 				var i = $.inArray(command, commands);
 				if (i != -1)
 					functions[i](args);
+			};
+			module.runFile = function (lines) {
+				for (pc = 0; pc < lines.length; ++pc) {
+					lines[pc] = lines[pc].trim().replace(/,\t*\s*/g,',').replace(/\t/g, ' ');
+					var tokens = lines[pc].split(' ');
+					switch(tokens.length) {
+						case 1:
+							if (tokens[0].charAt(tokens[0].length-1) === ':')
+								labels[tokens[0].substring(0,tokens[0].length-1)] = pc;
+							break;
+						case 2:
+							module.call(tokens[0], tokens[1].split(',').map(Function.prototype.call, String.prototype.trim));
+							break;/*
+						case 3:
+							if (tokens[0].charAt(tokens[0].length-1) === ':') {
+								labels[tokens[0].substring(0,tokens[0].length-1)] = pc;
+								module.call(tokens[1], tokens[2]);
+							} else {
+								module.call(tokens[0], );
+							}
+							break;*/
+						case 3:
+							labels[tokens[0].substring(0,tokens[0].length-1)] = pc;
+							module.call(tokens[1], tokens[2].split(',').map(Function.prototype.call, String.prototype.trim));
+							break;
+						default:
+							// ERROR
+							break;
+					}
+					refreshReg();
+				}
 			};
 			return module;
 		})();

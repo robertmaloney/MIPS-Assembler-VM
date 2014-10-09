@@ -1,10 +1,12 @@
-var myconsole;
+var myconsole, refreshReg;
 $(document).ready(
 	function () {
 		$('textarea').keydown(
 			function (kv) {
 				if (kv.which == 9) {
-					$(this).val( $(this).val() + "\t" );
+					myconsole.checkCaret();
+					var selection = $(this).getSelection();
+					$(this).val( $(this).val().substring(0,selection.start) + "\t" + $(this).val().substring(selection.end));
 					kv.preventDefault();
 				}
 			}
@@ -117,7 +119,7 @@ $(document).ready(
 		$("#consolebox").click(myconsole.checkCaret);
 		
 		// VarBox
-		function refreshReg() {
+		refreshReg = function () {
 			$('#varbox').html('');
 			for (var prop in mips.registers) {
 				var used = (mips.registers[prop].used) ? '' : 'unused';
@@ -141,10 +143,7 @@ $(document).ready(
 		// CodeBox
 		$('#runfile').click(
 			function () {
-				var commands = $('#codebox').val().split("\n");
-				for (var i in commands) {
-					myconsole.runCommand(commands[i]);
-				}
+				mips.runFile($('#codebox').val().split("\n"));
 			}
 		);
 	}
