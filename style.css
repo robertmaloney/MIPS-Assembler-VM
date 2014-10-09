@@ -30,12 +30,23 @@ div {
 	height: 75%;
 }
 
+#runfile {
+	margin: 3px 5px;
+	cursor: pointer;
+}
+
+#codebox {
+	margin: 0px 5px;
+	height: calc(100% - 38px);
+}
+
 .textbox {
 	background-color: rgb(230,230,230);
 	width: calc(100% - 16px);
 	height: calc(100% - 16px);
 	margin: 5px;
 	resize: none;
+	overflow-x: hidden;
 }
 
 #varframe {

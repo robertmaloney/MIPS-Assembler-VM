@@ -1,6 +1,15 @@
 var myconsole;
 $(document).ready(
 	function () {
+		$('textarea').keydown(
+			function (kv) {
+				if (kv.which == 9) {
+					$(this).val( $(this).val() + "\t" );
+					kv.preventDefault();
+				}
+			}
+		);
+
 		// Console Box
 		myconsole = (function () {
 			var wall = 9;
@@ -46,12 +55,13 @@ $(document).ready(
 				$('#consolebox').val($('#consolebox').val() + str + module.newline);
 				wall = $('#consolebox').val().length;
 			};
-			module.runCommand = function () {
-				var call = $('#consolebox').val().substring(wall,$('#consolebox').getSelection().start);
+			module.runCommand = function (call) {
 				prevCalls[numCalls++] = call;
 				atCall = numCalls;
-				var command = call.substring(0, call.indexOf(' '));
-				var args = call.substring(call.indexOf(' ')).split(',').map(Function.prototype.call, String.prototype.trim);
+				var commdiv = call.indexOf("\t");
+				if (commdiv == -1) commdiv = call.indexOf(' ');
+				var command = call.substring(0, commdiv);
+				var args = call.substring(commdiv).split(',').map(Function.prototype.call, String.prototype.trim);
 				module.println('');
 				mips.call(command, args);
 				refreshReg();
@@ -84,7 +94,7 @@ $(document).ready(
 							kv.preventDefault();
 						break;
 					case 13:
-						myconsole.runCommand();
+						myconsole.runCommand($('#consolebox').val().substring(myconsole.getWall(),$('#consolebox').getSelection().start));
 						kv.preventDefault();
 						break;
 					case 38:
@@ -118,6 +128,7 @@ $(document).ready(
 
 			}
 		}
+		refreshReg();
 		$(document).on(
 			'click',
 			'.var',
@@ -126,6 +137,15 @@ $(document).ready(
 				myconsole.endCaret();
 			}
 		);
-		refreshReg();
+
+		// CodeBox
+		$('#runfile').click(
+			function () {
+				var commands = $('#codebox').val().split("\n");
+				for (var i in commands) {
+					myconsole.runCommand(commands[i]);
+				}
+			}
+		);
 	}
 );
