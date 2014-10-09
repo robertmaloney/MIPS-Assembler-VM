@@ -44,6 +44,20 @@ div {
 	height: 75%;
 	right: 0px;
 	top: 0%;
+	font-family: monospace;
+	cursor: default;
+}
+
+.varname {
+	padding-right: 3em;
+}
+
+.unused {
+	opacity: 0.5;
+}
+
+.var:hover {
+	color: rgb(73,195,200);
 }
 
 #consoleframe {
