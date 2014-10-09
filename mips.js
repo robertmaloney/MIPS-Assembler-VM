@@ -53,6 +53,10 @@ $(document).ready(
 						myconsole.println(args[i]+" is not a number.");
 						return false;
 					}
+					else if (format.charAt(i) === 'a' && typeof(labels[args[i]]) === 'undefined') {
+						myconsole.println(args[i] + " is not a valid address.");
+						return false;
+					}
 				}
 				for (var i in args) {
 					if (format.charAt(i) === 'r')
@@ -60,28 +64,50 @@ $(document).ready(
 				}
 				return true;
 			}
-			var add = function (args) {
-				if (checkArgs(args, 'rrr'))
-					module.registers[args[0]].val = module.registers[args[1]].val + module.registers[args[2]].val;
+			
+			// OPS
+			var ops = {
+				// R-type
+				add: function (args) {
+					if (checkArgs(args, 'rrr'))
+						module.registers[args[0]].val = module.registers[args[1]].val + module.registers[args[2]].val;
+				},
+				sub: function (args) {
+					if (checkArgs(args, 'rrr'))
+						module.registers[args[0]].val = module.registers[args[1]].val - module.registers[args[2]].val;
+				},
+				slt: function (args) {
+					if (checkArgs(args, 'rrr'))
+						module.registers[args[0]].val = (module.registers[args[1]].val < module.registers[args[2]].val) ? 1 : 0;
+				},
+				// I-type
+				addi: function (args) {
+					if (checkArgs(args, 'rri'))
+						module.registers[args[0]].val = module.registers[args[1]].val + Number(args[2]);
+				},
+				subi: function (args) {
+					if (checkArgs(args, 'rri'))
+						module.registers[args[0]].val = module.registers[args[1]].val - Number(args[2]);
+				},
+				beq: function(args) {
+					if (checkArgs(args, 'rra'))
+						if (module.registers[args[0]].val == module.registers[args[1]].val);
+							pc = labels[args[2]] - 1;
+				},
+				bne: function(args) {
+					if (checkArgs(args, 'rra'))
+						if (module.registers[args[0]].val != module.registers[args[1]].val)
+							pc = labels[args[2]] - 1;
+				},
+				slti: function (args) {
+					if (checkArgs(args, 'rri'))
+						module.registers[args[0]].val = (module.registers[args[1]].val < Number(args[2])) ? 1 : 0;
+				}
+				// J-type
 			};
-			var sub = function (args) {
-				if (checkArgs(args, 'rrr'))
-					module.registers[args[0]].val = module.registers[args[1]].val - module.registers[args[2]].val;
-			};
-			var addi = function (args) {
-				if (checkArgs(args, 'rri'))
-					module.registers[args[0]].val = module.registers[args[1]].val + Number(args[2]);
-			};
-			var subi = function (args) {
-				if (checkArgs(args, 'rri'))
-					module.registers[args[0]].val = module.registers[args[1]].val - Number(args[2]);
-			};
-			var commands = ['add', 'sub', 'addi', 'subi'];
-			var functions = [add, sub, addi, subi];
 			module.call = function (command, args) {
-				var i = $.inArray(command, commands);
-				if (i != -1)
-					functions[i](args);
+				if (typeof(ops[command]) !== 'undefined')
+					ops[command](args);
 			};
 			module.runFile = function (lines) {
 				for (pc = 0; pc < lines.length; ++pc) {
