@@ -106,12 +106,13 @@ $(document).ready(
 				// J-type
 			};
 			module.call = function (command, args) {
+				//alert(command + ' | ' + args);
 				if (typeof(ops[command]) !== 'undefined')
 					ops[command](args);
 			};
 			module.runFile = function (lines) {
 				for (pc = 0; pc < lines.length; ++pc) {
-					lines[pc] = lines[pc].trim().replace(/,\t*\s*/g,',').replace(/\t/g, ' ');
+					lines[pc] = lines[pc].trim().replace(/,[\t\s]*/g,',').replace(/\t/g, ' ');
 					var tokens = lines[pc].split(' ');
 					switch(tokens.length) {
 						case 1:

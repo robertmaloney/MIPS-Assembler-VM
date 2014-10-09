@@ -49,6 +49,9 @@ $(document).ready(
 			module.advanceWall = function (offset) {
 				wall += offset;
 			};
+			module.clear = function () {
+				$('#consolebox').val('');
+			};
 			module.print = function(str) {
 				$('#consolebox').val($('#consolebox').val() + str);
 				wall = $('#consolebox').val().length;
@@ -60,10 +63,9 @@ $(document).ready(
 			module.runCommand = function (call) {
 				prevCalls[numCalls++] = call;
 				atCall = numCalls;
-				var commdiv = call.indexOf("\t");
-				if (commdiv == -1) commdiv = call.indexOf(' ');
-				var command = call.substring(0, commdiv);
-				var args = call.substring(commdiv).split(',').map(Function.prototype.call, String.prototype.trim);
+				call = call.trim().replace(/,[\t\s]*/g,',').replace(/\t/g, ' ');
+				var command = call.substring(0, call.indexOf(' '));
+				var args = call.substring(call.indexOf(' ')).split(',').map(Function.prototype.call, String.prototype.trim);
 				module.println('');
 				mips.call(command, args);
 				refreshReg();
@@ -82,7 +84,7 @@ $(document).ready(
 			}
 			return module;
 		})();
-		
+		myconsole.clear();
 		myconsole.println('MIPS VM Console v0.0.1');
 		myconsole.print('>');
 		
@@ -96,7 +98,7 @@ $(document).ready(
 							kv.preventDefault();
 						break;
 					case 13:
-						myconsole.runCommand($('#consolebox').val().substring(myconsole.getWall(),$('#consolebox').getSelection().start));
+						myconsole.runCommand($('#consolebox').val().substring(myconsole.getWall(),$('#consolebox').val().length));
 						kv.preventDefault();
 						break;
 					case 38:
@@ -124,9 +126,9 @@ $(document).ready(
 			for (var prop in mips.registers) {
 				var used = (mips.registers[prop].used) ? '' : 'unused';
 				if (prop !== '$zero')
-					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span class="varname">' + prop + ":</span>" + mips.registers[prop].val + '</span><br />');
+					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span class="varname">' + prop + ":</span>0x" + mips.registers[prop].val.toString(16).toUpperCase() + '</span><br />');
 				else
-					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span style="padding-right:24px">' + prop + ":</span>" + mips.registers[prop].val + '</span><br />');
+					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span style="padding-right:24px">' + prop + ":</span>0x" + mips.registers[prop].val.toString(16).toUpperCase() + '</span><br />');
 
 			}
 		}

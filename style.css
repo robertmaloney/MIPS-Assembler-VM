@@ -84,4 +84,6 @@ div {
 	bottom: 0px;
 	height: 50px;
 	width: 100vw;
+	text-align: center;
+	color: rgb(200,200,200);
 }
