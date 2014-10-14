@@ -1,4 +1,19 @@
 var myconsole, refreshReg;
+
+function setSelectionRange(input, selectionStart, selectionEnd) {
+	if (input.setSelectionRange) {
+		input.focus();
+		input.setSelectionRange(selectionStart, selectionEnd);
+	}
+	else if (input.createTextRange) {
+		var range = input.createTextRange();
+		range.collapse(true);
+		range.moveEnd('character', selectionEnd);
+		range.moveStart('character', selectionStart);
+		range.select();
+	}
+}
+
 $(document).ready(
 	function () {
 		$('textarea').keydown(
@@ -7,6 +22,7 @@ $(document).ready(
 					myconsole.checkCaret();
 					var selection = $(this).getSelection();
 					$(this).val( $(this).val().substring(0,selection.start) + "\t" + $(this).val().substring(selection.end));
+					setSelectionRange($(this)[0], selection.start+1, selection.start+1);
 					kv.preventDefault();
 				}
 			}
@@ -18,19 +34,6 @@ $(document).ready(
 			var module = {};
 			var prevCalls = [];
 			var numCalls = 0, atCall = 0;
-			function setSelectionRange(input, selectionStart, selectionEnd) {
-				if (input.setSelectionRange) {
-					input.focus();
-					input.setSelectionRange(selectionStart, selectionEnd);
-				}
-				else if (input.createTextRange) {
-					var range = input.createTextRange();
-					range.collapse(true);
-					range.moveEnd('character', selectionEnd);
-					range.moveStart('character', selectionStart);
-					range.select();
-				}
-			}
 			module.newline = String.fromCharCode(13);
 			module.checkCaret = function (event) {
 				if ($('#consolebox').getSelection().start < wall)
