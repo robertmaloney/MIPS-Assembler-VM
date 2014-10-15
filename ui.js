@@ -129,9 +129,9 @@ $(document).ready(
 			for (var prop in mips.registers) {
 				var used = (mips.registers[prop].used) ? '' : 'unused';
 				if (prop !== '$zero')
-					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span class="varname">' + prop + ":</span>0x" + mips.registers[prop].val.toString(16).toUpperCase() + '</span><br />');
+					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span class="varname">' + prop + ":</span>0x" + mips.registers[prop].val().toString(16).toUpperCase() + '</span><br />');
 				else
-					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span style="padding-right:24px">' + prop + ":</span>0x" + mips.registers[prop].val.toString(16).toUpperCase() + '</span><br />');
+					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span style="padding-right:24px">' + prop + ":</span>0x" + mips.registers[prop].val().toString(16).toUpperCase() + '</span><br />');
 
 			}
 		}

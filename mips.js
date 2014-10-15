@@ -3,37 +3,117 @@ $(document).ready(
 	function () {
 		mips = (function() {
 			var module = {};
-			module.registers = {
-				$zero:	{ val: 0, used: true },
-				$v0:	{ val: 0, used: false },
-				$v1:	{ val: 0, used: false },
-				$a0:	{ val: 0, used: false }, // Preserved
-				$a1:	{ val: 0, used: false }, // Preserved
-				$a2:	{ val: 0, used: false }, // Preserved
-				$a3:	{ val: 0, used: false }, // Preserved
-				$t0:	{ val: 0, used: false },
-				$t1:	{ val: 0, used: false },
-				$t2:	{ val: 0, used: false },
-				$t3:	{ val: 0, used: false },
-				$t4:	{ val: 0, used: false },
-				$t5:	{ val: 0, used: false },
-				$t6:	{ val: 0, used: false },
-				$t7:	{ val: 0, used: false },
-				$s0:	{ val: 0, used: false }, // Preserved
-				$s1:	{ val: 0, used: false }, // Preserved
-				$s2:	{ val: 0, used: false }, // Preserved
-				$s3:	{ val: 0, used: false }, // Preserved
-				$s4:	{ val: 0, used: false }, // Preserved
-				$s5:	{ val: 0, used: false }, // Preserved
-				$s6:	{ val: 0, used: false }, // Preserved
-				$s7:	{ val: 0, used: false }, // Preserved
-				$t8:	{ val: 0, used: false },
-				$t9:	{ val: 0, used: false },
-				$gp:	{ val: 0, used: false }, // Preserved
-				$sp:	{ val: 0, used: false }, // Preserved
-				$fp:	{ val: 0, used: false }, // Preserved
-				$ra:	{ val: 0, used: false }  // Preserved
+			// NEED TO RESTRICT REGISTERS TO 32 BITS
+			// CURRENTLY CANT REACH SIGN BIT FOR AND, OR, LUI
+			var register = function () {
+				this.bits = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
+							 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
+				var parseBits = function (arg) {
+					var tmpreg;
+					if (arg instanceof register) {
+						tmpreg = Object.create(arg);
+					} else {
+						var tmp = '0000000000000000000000000000000' + Number(arg).toString(2);
+						tmp = tmp.substring(tmp.length-32,tmp.length);
+						tmpreg = new register();
+						tmpreg.bits = tmp.split('').map(function(x) { return parseInt(x,2); });
+					}
+					return tmpreg;
+				};
+				this.used = false;
+				this.add = function (arg0, arg1) {
+					if ((arg0 instanceof register) && (arg1 instanceof register)) {
+						//alert(" " + this.bits.join('') + "\n+" + arg.bits.join(''));
+						for (var i = this.bits.length-1; i > -1; --i) {
+							this.bits[i] = arg0.bits[i] + arg1.bits[i];
+							if (this.bits[i] > 1) {
+								this.bits[i] -= 2;
+								if (i > 0) this.bits[i-1] += 1;
+							}
+						}
+						//alert(this.bits.join(''));
+					} else {
+						this.add(parseBits(arg0));
+					}
+				};
+				this.sub = function (arg) {
+					if (arg instanceof register) {
+						var tmpreg = Object.create(arg);
+						tmpreg.bits.map(function(x) { return (parseInt(x,2) == 1) ? 0 : 1; });
+						tmpreg.add(1);
+						this.add(tmpreg);
+					} else {
+						var tmpreg = parseBits(arg);
+						tmpreg.bits = tmpreg.bits.map(function(x) { return (x == 1) ? 0 : 1; });
+						tmpreg.add(1);
+						this.add(tmpreg);
+					}
+				};
+				this.and = function (arg) {
+					if (arg instanceof register) {
+						//alert(" " + this.bits.join('') + "\n&" + arg.bits.join(''));
+						for (var i = this.bits.length-1; i > -1; --i) {
+							this.bits[i] = this.bits[i] & arg.bits[i];
+						}
+						//alert(this.bits.join(''));
+					} else {
+						this.and(parseBits(arg));
+					}
+				};
+				this.or = function (arg){
+					if (arg instanceof register) {
+						for (var i = this.bits.length-1; i > -1; --i) {
+							this.bits[i] = this.bits[i] | arg.bits[i];
+						}
+					} else {
+						this.or(parseBits(arg));
+					}
+				};
+				this.nor = function (arg) {
+					if (arg instanceof register) {
+						for (var i = this.bits.length-1; i > -1; --i) {
+							this.bits[i] = ((this.bits[i] | arg.bits[i]) == 1) ? 0 : 1;
+						}
+					} else {
+						this.nor(parseBits(arg));
+					}
+				};
+				this.val = function () {
+					return parseInt(this.bits.join(''), 2);
+				};
 			};
+			module.registers = {
+				$zero:	new register(),
+				$v0:	new register(),
+				$v1:	new register(),
+				$a0:	new register(), // Preserved
+				$a1:	new register(), // Preserved
+				$a2:	new register(), // Preserved
+				$a3:	new register(), // Preserved
+				$t0:	new register(),
+				$t1:	new register(),
+				$t2:	new register(),
+				$t3:	new register(),
+				$t4:	new register(),
+				$t5:	new register(),
+				$t6:	new register(),
+				$t7:	new register(),
+				$s0:	new register(), // Preserved
+				$s1:	new register(), // Preserved
+				$s2:	new register(), // Preserved
+				$s3:	new register(), // Preserved
+				$s4:	new register(), // Preserved
+				$s5:	new register(), // Preserved
+				$s6:	new register(), // Preserved
+				$s7:	new register(), // Preserved
+				$t8:	new register(),
+				$t9:	new register(),
+				$gp:	new register(), // Preserved
+				$sp:	new register(), // Preserved
+				$fp:	new register(), // Preserved
+				$ra:	new register()  // Preserved
+			};
+			module.registers.$zero.used = true;
 			var labels = {};
 			var stack = (function () {
 				var memory = [];
@@ -52,10 +132,6 @@ $(document).ready(
 				};
 				return stackmodule;
 			})();
-			stack.push(1);
-			stack.push(3);
-			module.registers.$t0.val = stack.pop();
-			module.registers.$t1.val = stack.pop();
 			var pc = 0;
 			var errors = {
 				numArgsError: "Not the correct number of arguments."
@@ -91,7 +167,7 @@ $(document).ready(
 				// R-type
 				add: function (args) {
 					if (checkArgs(args, 'rrr'))
-						module.registers[args[0]].val = module.registers[args[1]].val + module.registers[args[2]].val;
+						module.registers[args[0]].add(module.registers[args[1]], module.registers[args[2]]);
 				},
 				sub: function (args) {
 					if (checkArgs(args, 'rrr'))
@@ -101,10 +177,42 @@ $(document).ready(
 					if (checkArgs(args, 'rrr'))
 						module.registers[args[0]].val = (module.registers[args[1]].val < module.registers[args[2]].val) ? 1 : 0;
 				},
+				and: function (args) {
+					if (checkArgs(args, 'rrr'))
+						module.registers[args[0]].val = module.registers[args[1]].val & module.registers[args[2]].val;
+				},
+				jr: function (args) {
+					if (checkArgs(args, 'r'))
+						pc = module.registers[args[0]].val;
+				},
+				nor: function (args) {
+					if (checkArgs(args, 'rrr'))
+						module.registers[args[0]].val = ~(module.registers[args[1]].val | module.registers[args[2]].val);
+				},
+				or: function (args) {
+					if (checkArgs(args, 'rrr'))
+						module.registers[args[0]].val = module.registers[args[1]].val | module.registers[args[2]].val;
+				},
+				sll: function (args) {
+					if (checkArgs(args, 'rri'))
+						module.registers[args[0]].val = module.registers[args[1]].val << Number(args[2]);
+				},
+				srl: function (args) {
+					if (checkArgs(args, 'rri'))
+						module.registers[args[0]].val = module.registers[args[1]].val >> Number(args[2]);
+				},
 				// I-type
 				addi: function (args) {
 					if (checkArgs(args, 'rri'))
-						module.registers[args[0]].val = module.registers[args[1]].val + Number(args[2]);
+						module.registers[args[0]].add( module.registers[args[1]], Number(args[2]) );
+				},
+				andi: function (args) {
+					alert(module.registers[args[0]].val.toString(2));
+					alert((Number(args[2]) | 0x00000000).toString(2));
+					alert((0xFFFF0000).toString(2));
+					if (checkArgs(args, 'rri'))
+						module.registers[args[0]].val = module.registers[args[1]].val & (Number(args[2]) | 0xFFFF0000);
+					alert(module.registers[args[0]].val.toString(2));
 				},
 				subi: function (args) {
 					if (checkArgs(args, 'rri'))
@@ -123,6 +231,20 @@ $(document).ready(
 				slti: function (args) {
 					if (checkArgs(args, 'rri'))
 						module.registers[args[0]].val = (module.registers[args[1]].val < Number(args[2])) ? 1 : 0;
+				},
+				lui: function (args) {
+					alert(module.registers[args[0]].val.toString(2));
+					alert((Number(args[1]) << 16).toString(2));
+					if (checkArgs(args, 'ri'))
+						module.registers[args[0]].val = (module.registers[args[0]].val & 0x0000FFFF) | (Number(args[1]) << 16);
+					alert(module.registers[args[0]].val.toString(2));
+				},
+				ori: function (args) {
+					alert(module.registers[args[0]].val.toString(2));
+					alert((Number(args[2]) & 0x0000FFFF).toString(2));
+					if (checkArgs(args, 'rri'))
+						module.registers[args[0]].val = module.registers[args[1]].val | (Number(args[2]) & 0x0000FFFF);
+					alert(module.registers[args[0]].val.toString(2));
 				},
 				// J-type
 				j: function (args) {
