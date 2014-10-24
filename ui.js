@@ -151,5 +151,22 @@ $(document).ready(
 				mips.runFile($('#codebox').val().split("\n"));
 			}
 		);
+		var tabs = 1;
+		$('#newpage').before( "<div class='tab tabfocused'>1</div>" );
+		$(document).on(
+			'click',
+			'.tab',
+			function () {
+				if ($(this).attr('id') != 'newpage') {
+					$('.tab').removeClass('tabfocused');
+					$(this).addClass('tabfocused');
+				} else {
+					if (tabs < 13) {
+						$(this).before( "<div class='tab'>"+(++tabs)+"</div>" );
+						$($('#filebar').children()[tabs-1]).trigger('click');
+					}
+				}
+			}
+		);
 	}
 );

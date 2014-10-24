@@ -87,3 +87,32 @@ div {
 	text-align: center;
 	color: rgb(200,200,200);
 }
+
+#filebar {
+	top: 4px;
+	left: 55px;
+	font-family: monospace;
+}
+
+.tab {
+	min-width: 32px;
+	height: 15px;
+	background-color: rgb(220,220,220);
+	cursor: pointer;
+	text-align: center;
+	padding: 4px;
+	position: relative;
+	display: inline-block;
+	margin-right: 2px;
+}
+
+.tabfocused {
+	cursor: default;
+	background-color: rgb(230,230,230);
+	height: 16px;
+}
+
+#newpage {
+	width: 16px;
+	min-width: 16px;
+}
