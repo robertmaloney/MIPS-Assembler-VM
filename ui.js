@@ -151,18 +151,23 @@ $(document).ready(
 				mips.runFile($('#codebox').val().split("\n"));
 			}
 		);
-		var tabs = 1;
+		var tabs = 1, tabfocused = 1;
+		var fileData = [];
 		$('#newpage').before( "<div class='tab tabfocused'>1</div>" );
 		$(document).on(
 			'click',
 			'.tab',
 			function () {
 				if ($(this).attr('id') != 'newpage') {
+					fileData[tabfocused] = $('#codebox').val();
 					$('.tab').removeClass('tabfocused');
 					$(this).addClass('tabfocused');
+					tabfocused = Number($(this).text());
+					$('#codebox').val(fileData[tabfocused]);
 				} else {
 					if (tabs < 13) {
 						$(this).before( "<div class='tab'>"+(++tabs)+"</div>" );
+						fileData[tabs] = "";
 						$($('#filebar').children()[tabs-1]).trigger('click');
 					}
 				}
