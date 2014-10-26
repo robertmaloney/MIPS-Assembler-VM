@@ -53,13 +53,13 @@ $(document).ready(
 					if ((arg0 instanceof register) && (arg1 instanceof register)) {
 						var tmpreg = Object.create(arg1);
 						tmpreg.bits.map(function(x) { return (parseInt(x,2) == 1) ? 0 : 1; });
-						tmpreg.add(1);
+						tmpreg.add(tmpreg, 1);
 						this.add(arg0, tmpreg);
 						delete tmpreg;
 					} else {
 						var tmpreg = parseBits(arg1);
 						tmpreg.bits = tmpreg.bits.map(function(x) { return (x == 1) ? 0 : 1; });
-						tmpreg.add(1);
+						tmpreg.add(tmpreg, 1);
 						this.add(arg0, tmpreg);
 						delete tmpreg;
 					}
@@ -109,7 +109,7 @@ $(document).ready(
 					return parseInt(this.bits.join(''), 2);
 				};
 				this.toString = function () {
-					return "Reg: "+this.val();
+					return ""+this.val();
 				};
 			};
 			module.registers = {
@@ -162,20 +162,24 @@ $(document).ready(
 				};
 				return stackmodule;
 			})();
+			
 			// Data Segment
 			var data = function () {
 				this.value = null;
 				this.isGlobal = false;
 				this.file = null;
 			};
-			var dataSegment = {};
-			
+			var dataSegment = [];
+			module.getData = function () {
+				return dataSegment;
+			};
 			
 			var pc = 0;
 			var errors = {
 				numArgsError: "Not the correct number of arguments."
 			}
 			var checkArgs = function (args, format) {
+				//alert(JSON.stringify(labels,null,4));
 				if (args.length != format.length) {
 					myconsole.error(errors.numArgsError);
 					return false;
@@ -221,8 +225,15 @@ $(document).ready(
 						module.registers[args[0]].and(module.registers[args[1]], module.registers[args[2]]);
 				},
 				jr: function (args) {
-					if (checkArgs(args, 'r'))
-						pc = module.registers[args[0]].val;
+					if (checkArgs(args, 'r')) {
+						pc = module.registers[args[0]].val();
+						if (args[0] === "$ra") {
+							var retvalues = [module.registers.$v0, module.registers.$v1];
+							module.registers = stack.pop();
+							module.registers.$v0 = retvalues[0];
+							module.registers.$v1 = retvalues[1];
+						}
+					}
 				},
 				nor: function (args) {
 					if (checkArgs(args, 'rrr'))
@@ -279,9 +290,26 @@ $(document).ready(
 				j: function (args) {
 					if (checkArgs(args, 'a'))
 						pc = labels[args[0]] - 1;
+				},
+				jal: function (args) {
+					if (checkArgs(args, 'a')) {
+						stack.push(Object.create(module.registers));
+						module.registers.$ra = pc;
+						pc = labels[args[0]];
+					}
 				}
 			};
-			
+			var mipsClear = function () {
+				dataSegment = {};
+				var tmpreg = new register();
+				for (var reg in module.registers) {
+					module.registers[reg].bits = tmpreg.bits;
+					module.registers[reg].used = tmpreg.used;
+				};
+				delete tmpreg;
+				module.registers.$zero.used = true;
+				labels = {};
+			};
 			module.call = function (command, args) {
 				//alert(command + ' | ' + args);
 				if (typeof(ops[command]) !== 'undefined')
@@ -289,8 +317,9 @@ $(document).ready(
 			};
 			module.runFile = function (lines) {
 				mipsClear();
+				dataSegment[0] = {};
 				for (pc = 0; pc < lines.length; ++pc) {
-					lines[pc] = lines[pc].trim().replace(/,[\t\s]*/g,',').replace(/\t/g, ' ');
+					lines[pc] = lines[pc].trim().replace(/,[\t\s]*/g,',').replace(/[\t\s]+/g, ' ');
 					var tokens = lines[pc].split(' ');
 					switch (tokens.length) {
 						// Assembly Directive or Label
@@ -309,30 +338,34 @@ $(document).ready(
 						case 2:
 							if (tokens[0] === '.globl') {
 								if (typeof(dataSegment[tokens[1]]) === 'undefined')
-									dataSegment[tokens[1]] = new data();
-								dataSegment[tokens[1]].global = true;
+									dataSegment[0][tokens[1]] = new data();
+								dataSegment[0][tokens[1]].global = true;
 							}
 							break;
 						// Data or Label + Instruction
 						case 3:
 							switch (currentMode) {
 								case mipsModes.TEXT:
-									labels[tokens[0].substring(0,tokens[0].length-1)] = pc;
+									if (tokens[1].indexOf(".") == -1)
+										labels[tokens[0].substring(0,tokens[0].length-1)] = pc;
+									else
+										myconsole.error("Can't initialize data in text segment: " +tokens[0].substring(0,tokens[0].length-1));
 									break;
 								default:
 									var dataname = tokens[0].substring(0,tokens[0].length-1);
-									if (typeof(dataSegment[dataname]) === 'undefined')
-										dataSegment[dataname] = new data();
-									dataSegment[dataname].file = "1";
+									if (typeof(dataSegment[0][dataname]) === 'undefined')
+										dataSegment[0][dataname] = new data();
+									dataSegment[0][dataname].file = "1";
 									switch (tokens[1]) {
 										case ".asciiz": case ".ascii":
-											dataSegment[dataname].value = tokens[2];
+											dataSegment[0][dataname].value = tokens[2];
 											break;
-										case ".byte": case ".double": case ".float": case ".word":
-											dataSegment[dataname].value = tokens[2].split(",").map(function (el) {return new register(Number(el));});
+										case ".byte": case ".word":
+											dataSegment[0][dataname].value = tokens[2].split(",").map(function (el) {return new register(Number(el));});
 											break;
+										// ADD DOUBLE AND FLOAT SUPPORT
 									}
-									alert(dataname+": "+dataSegment[dataname].value);
+									//alert(dataname+": "+dataSegment[0][dataname].value);
 									break;
 							}
 							break;
@@ -340,8 +373,9 @@ $(document).ready(
 					}
 				}
 				for (pc = 0; pc < lines.length; ++pc) {
-					//alert("On line "+pc);
+					//alert(lines[pc]);
 					var tokens = lines[pc].split(' ');
+					//alert(tokens.length);
 					switch(tokens.length) {
 						case 1:
 							//if (tokens[0].charAt(tokens[0].length-1) === ':')

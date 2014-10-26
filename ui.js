@@ -137,7 +137,15 @@ $(document).ready(
 				else
 					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span style="padding-right:24px">' + prop + ":</span>0x" + mips.registers[prop].val().toString(16).toUpperCase() + '</span><br />');
 			}
-			$('#varbox').html($('#varbox').html() + '---------------------------------------<br />');
+			$('#varbox').html($('#varbox').html() + '--------------------<br />');
+			var dataSegment = mips.getData();
+			for (var file in dataSegment) {
+				$('#varbox').html($('#varbox').html() + "File "+file+" Data:<br />");
+				for (var data in dataSegment[file]) {
+					$('#varbox').html($('#varbox').html() + data + ":\t" + dataSegment[file][data].value + "<br />");
+				}
+				$('#varbox').html($('#varbox').html() + "<br />");
+			}
 		}
 		refreshReg();
 		$(document).on(
