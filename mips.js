@@ -102,7 +102,7 @@ $(document).ready(
 				this.set = function (arg) {
 					for (var i = 0; i < this.bits.length; ++i)
 						this.bits[i] = 0;
-					alert(arg);
+					//alert(arg);
 					this.bits[31] = (arg) ? 1 : 0;
 				};
 				this.val = function () {
@@ -150,11 +150,13 @@ $(document).ready(
 				var size = 0;
 				var stackmodule = {};
 				stackmodule.push = function (data) {
+					alert("Pushed onto stack. $ra: "+data.$ra.val());
 					memory[size++] = data;
 				};
 				stackmodule.pop = function () {
 					var top = memory[size-1];
 					delete memory[--size];
+					alert("Popped stack. $ra: "+top.$ra.val());
 					return top;
 				};
 				stackmodule.size = function () {
@@ -230,8 +232,9 @@ $(document).ready(
 						if (args[0] === "$ra") {
 							var retvalues = [module.registers.$v0, module.registers.$v1];
 							module.registers = stack.pop();
-							module.registers.$v0 = retvalues[0];
-							module.registers.$v1 = retvalues[1];
+							module.registers.$v0.bits = retvalues[0].bits;
+							module.registers.$v1.bits = retvalues[1].bits;
+							delete retvalues;
 						}
 					}
 				},
@@ -294,8 +297,9 @@ $(document).ready(
 				jal: function (args) {
 					if (checkArgs(args, 'a')) {
 						stack.push(Object.create(module.registers));
-						module.registers.$ra = pc;
-						pc = labels[args[0]];
+						delete module.registers.$ra;
+						module.registers.$ra = new register(pc);
+						pc = labels[args[0]] - 1;
 					}
 				}
 			};
@@ -320,6 +324,7 @@ $(document).ready(
 				dataSegment[0] = {};
 				for (pc = 0; pc < lines.length; ++pc) {
 					lines[pc] = lines[pc].trim().replace(/,[\t\s]*/g,',').replace(/[\t\s]+/g, ' ');
+					//alert(lines[pc]);
 					var tokens = lines[pc].split(' ');
 					switch (tokens.length) {
 						// Assembly Directive or Label
