@@ -2,10 +2,16 @@ var mips;
 $(document).ready(
 	function () {
 		mips = (function() {
+			// Public Module
 			var module = {};
-			// NEED TO RESTRICT REGISTERS TO 32 BITS
-			// CURRENTLY CANT REACH SIGN BIT FOR AND, OR, LUI
-			var register = function () {
+			
+			// MIPS Syntax Mode
+			var mipsModes = { RDATA: 0, DATA: 1, TEXT: 2 };
+			Object.freeze(mipsModes);
+			var currentMode = null;
+			
+			// Reg File
+			var register = function (init) {
 				this.bits = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,
 							 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
 				var parseBits = function (arg) {
@@ -20,6 +26,11 @@ $(document).ready(
 					}
 					return tmpreg;
 				};
+				if (typeof(init) != "undefined") {
+					var tmpreg = parseBits(init);
+					this.bits = tmpreg.bits;
+					delete tmpreg;
+				}
 				this.used = false;
 				this.add = function (arg0, arg1) {
 					if ((arg0 instanceof register) && (arg1 instanceof register)) {
@@ -97,6 +108,9 @@ $(document).ready(
 				this.val = function () {
 					return parseInt(this.bits.join(''), 2);
 				};
+				this.toString = function () {
+					return "Reg: "+this.val();
+				};
 			};
 			module.registers = {
 				$zero:	new register(),
@@ -148,26 +162,35 @@ $(document).ready(
 				};
 				return stackmodule;
 			})();
+			// Data Segment
+			var data = function () {
+				this.value = null;
+				this.isGlobal = false;
+				this.file = null;
+			};
+			var dataSegment = {};
+			
+			
 			var pc = 0;
 			var errors = {
 				numArgsError: "Not the correct number of arguments."
 			}
 			var checkArgs = function (args, format) {
 				if (args.length != format.length) {
-					myconsole.println(errors.numArgsError);
+					myconsole.error(errors.numArgsError);
 					return false;
 				}
 				for (var i in args) {
 					if (format.charAt(i) === 'r' && typeof(module.registers[args[i]]) === 'undefined') {
-						myconsole.println("REGISTER "+args[i]+" DOES NOT EXIST.");
+						myconsole.error("REGISTER "+args[i]+" DOES NOT EXIST.");
 						return false;
 					}
 					else if (format.charAt(i) === 'i' && !$.isNumeric(args[i])) {
-						myconsole.println(args[i]+" is not a number.");
+						myconsole.error(args[i]+" is not a number.");
 						return false;
 					}
 					else if (format.charAt(i) === 'a' && typeof(labels[args[i]]) === 'undefined') {
-						myconsole.println(args[i] + " is not a valid address.");
+						myconsole.error(args[i] + " is not a valid address.");
 						return false;
 					}
 				}
@@ -258,18 +281,62 @@ $(document).ready(
 						pc = labels[args[0]] - 1;
 				}
 			};
+			
 			module.call = function (command, args) {
 				//alert(command + ' | ' + args);
 				if (typeof(ops[command]) !== 'undefined')
 					ops[command](args);
 			};
 			module.runFile = function (lines) {
+				mipsClear();
 				for (pc = 0; pc < lines.length; ++pc) {
 					lines[pc] = lines[pc].trim().replace(/,[\t\s]*/g,',').replace(/\t/g, ' ');
 					var tokens = lines[pc].split(' ');
-					if (tokens.length == 1 || tokens.length == 3) {
-						//alert(tokens[0]);
-						labels[tokens[0].substring(0,tokens[0].length-1)] = pc;
+					switch (tokens.length) {
+						// Assembly Directive or Label
+						case 1:
+							if (currentMode == mipsModes.TEXT && tokens[0].indexOf(":") > -1)
+								labels[tokens[0].substring(0,tokens[0].length-1)] = pc;
+							else if (tokens[0].indexOf(":") == -1 && tokens[0].indexOf(".") > -1)
+								switch (tokens[0]) {
+									case ".rdata": currentMode = mipsModes.RDATA; break;
+									case ".data": currentMode = mipsModes.DATA; break;
+									case ".text": currentMode = mipsModes.TEXT; break;
+									default: myconsole.error("Misused directive " +tokens[0]); break;
+								}
+							break;
+						// .globl
+						case 2:
+							if (tokens[0] === '.globl') {
+								if (typeof(dataSegment[tokens[1]]) === 'undefined')
+									dataSegment[tokens[1]] = new data();
+								dataSegment[tokens[1]].global = true;
+							}
+							break;
+						// Data or Label + Instruction
+						case 3:
+							switch (currentMode) {
+								case mipsModes.TEXT:
+									labels[tokens[0].substring(0,tokens[0].length-1)] = pc;
+									break;
+								default:
+									var dataname = tokens[0].substring(0,tokens[0].length-1);
+									if (typeof(dataSegment[dataname]) === 'undefined')
+										dataSegment[dataname] = new data();
+									dataSegment[dataname].file = "1";
+									switch (tokens[1]) {
+										case ".asciiz": case ".ascii":
+											dataSegment[dataname].value = tokens[2];
+											break;
+										case ".byte": case ".double": case ".float": case ".word":
+											dataSegment[dataname].value = tokens[2].split(",").map(function (el) {return new register(Number(el));});
+											break;
+									}
+									alert(dataname+": "+dataSegment[dataname].value);
+									break;
+							}
+							break;
+						default: break;
 					}
 				}
 				for (pc = 0; pc < lines.length; ++pc) {

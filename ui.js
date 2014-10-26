@@ -63,6 +63,10 @@ $(document).ready(
 				$('#consolebox').val($('#consolebox').val() + str + module.newline);
 				wall = $('#consolebox').val().length;
 			};
+			module.error = function(str) {
+				$('#consolebox').val($('#consolebox').val() + "ERROR: " + str + module.newline);
+				wall = $('#consolebox').val().length;
+			};
 			module.runCommand = function (call) {
 				prevCalls[numCalls++] = call;
 				atCall = numCalls;
@@ -132,8 +136,8 @@ $(document).ready(
 					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span class="varname">' + prop + ":</span>0x" + mips.registers[prop].val().toString(16).toUpperCase() + '</span><br />');
 				else
 					$('#varbox').html($('#varbox').html() + '<span class="var '+used+'"><span style="padding-right:24px">' + prop + ":</span>0x" + mips.registers[prop].val().toString(16).toUpperCase() + '</span><br />');
-
 			}
+			$('#varbox').html($('#varbox').html() + '---------------------------------------<br />');
 		}
 		refreshReg();
 		$(document).on(
@@ -148,7 +152,9 @@ $(document).ready(
 		// CodeBox
 		$('#runfile').click(
 			function () {
+				myconsole.println("\nRunning File "+$('.tabfocused').text() + "...");
 				mips.runFile($('#codebox').val().split("\n"));
+				myconsole.print(">");
 			}
 		);
 		var tabs = 1, tabfocused = 1;

@@ -51,12 +51,17 @@ div {
 
 #varframe {
 	background-color: rgb(130,130,130);
-	width: 300px;
+	width: 295px;
 	height: 75%;
 	right: 0px;
 	top: 0%;
 	font-family: monospace;
 	cursor: default;
+	padding: 5px 0px 0px 5px;
+}
+
+#varbox {
+	height: calc(100% - 38px);
 }
 
 .varname {
