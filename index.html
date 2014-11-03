@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="Robert Maloney">
 	<title>MIPS Assembler VM</title>
-	<link rel=StyleSheet href='style.css'>
+	<link rel=StyleSheet href='css/bootstrap.min.css'>
+	<link rel=StyleSheet href='css/style.css'>
 	<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
-	<script src='jquery-fieldselection.min.js'></script>
-	<script src='mips.js'></script>
-	<script src='ui.js'></script>
+	<script src='js/jquery-fieldselection.min.js'></script>
+	<script src='js/mips.js'></script>
+	<script src='js/ui.js'></script>
 </head>
 <body>
+	<!--
 	<div id='header'>
 	</div>
 	<div id='container' spellcheck='false'>
@@ -29,6 +33,45 @@
 	</div>
 	<div id='footer'>
 		&#169; Robert Maloney | <a href="mailto:robertjamesmaloney@gmail.com" target="_top">robertjamesmaloney@gmail.com</a>
+	</div>
+	-->
+	<div class='container' id='bstest'>
+		<div class='row'>
+			<div class='col-xs-6'><h2>MIPS Assembler <small>emulator v0.2.0</small></h2></div>
+		</div>
+		<div class='row'>
+			<div class='col-sm-9' id='codeframe'>
+				<div class='row'>
+					<div class='col-sm-1'><input type='button' value='Run!' id='runfile' /></div>
+					<div class='col-sm-11'>
+						<div class='tab' id='newpage'>+</div>
+					</div>
+				</div>
+				<div class='row'>
+					<div class='col-xs-12'>
+						<textarea id='codebox' class='textbox'></textarea>
+					</div>
+				</div>
+			</div>
+			<div class='col-sm-3' id='varframe'>
+				<div class='row'>
+					<div class='col-xs-12' style='height: 37px'><h5>Data:</h5></div>
+				</div>
+				<div class='row'>
+					<div class='col-xs-12'><div id='varbox' class='textbox'></div></div>
+				</div>
+			</div>
+		</div>
+		<div class='row'>
+			<div class='col-xs-12' id='consoleframe'>
+				<textarea id='consolebox' class='textbox'></textarea>
+			</div>
+		</div>
+		<div class='row'>
+			<div class='col-xs-12 text-center' id='footer'>
+				&#169; Robert Maloney | <a href="mailto:robertjamesmaloney@gmail.com" target="_top">robertjamesmaloney@gmail.com</a>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

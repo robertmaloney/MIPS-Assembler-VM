@@ -6,28 +6,15 @@ body {
 	margin: 0px;
 }
 
-div {
-	position: absolute;
-}
-
-#header {
-	background-color: rgb(100,100,100);
-	width: 100vw;
-	height: 100px;
-}
-
-#container {
-	top: 100px;
-	width: 100vw;
-	height: calc(100vh - 150px);
+textarea {
+	font-size: 13px;
+	font-family: monospace;
 }
 
 #codeframe {
 	background-color: rgb(200,200,200);
-	left: 0%;
-	top: 0%;
-	width: calc(100% - 300px);
-	height: 75%;
+	height: 70vh;
+	padding-top: 5px;
 }
 
 #runfile {
@@ -36,32 +23,27 @@ div {
 }
 
 #codebox {
-	margin: 0px 5px;
-	height: calc(100% - 38px);
+	height: calc(70vh - 45px);
+	font-family: monospace;
 }
 
 .textbox {
 	background-color: rgb(230,230,230);
-	width: calc(100% - 16px);
-	height: calc(100% - 16px);
-	margin: 5px;
 	resize: none;
 	overflow-x: hidden;
+	width: 100%;
 }
 
 #varframe {
 	background-color: rgb(130,130,130);
-	width: 295px;
-	height: 75%;
-	right: 0px;
-	top: 0%;
-	font-family: monospace;
 	cursor: default;
-	padding: 5px 0px 0px 5px;
+	height: 70vh;
 }
 
 #varbox {
-	height: calc(100% - 38px);
+	height: calc(70vh - 45px);
+	font-family: monospace;
+	font-size: 13px;
 }
 
 .varname {
@@ -78,19 +60,12 @@ div {
 
 #consoleframe {
 	background-color: rgb(170,170,170);
-	width: 100vw;
-	height: 25%;
-	left: 0%;
-	top: 75%;
+	height: 15vh;
 }
 
-#footer {
-	background-color: rgb(100,100,100);
-	bottom: 0px;
-	height: 50px;
-	width: 100vw;
-	text-align: center;
-	color: rgb(200,200,200);
+#consolebox {
+	margin-top: 5px;
+	height: calc(15vh - 10px);
 }
 
 #filebar {
@@ -101,7 +76,7 @@ div {
 
 .tab {
 	min-width: 32px;
-	height: 15px;
+	height: 31px;
 	background-color: rgb(220,220,220);
 	cursor: pointer;
 	text-align: center;
@@ -114,10 +89,10 @@ div {
 .tabfocused {
 	cursor: default;
 	background-color: rgb(230,230,230);
-	height: 16px;
+	height: 32px;
 }
 
 #newpage {
-	width: 16px;
-	min-width: 16px;
+	width: 20px;
+	min-width: 20px;
 }
