@@ -14,6 +14,45 @@ function setSelectionRange(input, selectionStart, selectionEnd) {
 	}
 }
 
+$(document).on('dblclick', '.tab',
+	function (e) {
+		if ($(this).attr('id') != 'newpage') {
+			var oldname = $(this).text();
+			$(this).html("<input type='text' id='renameTab' value='"+oldname+"' style='width: 90px; height: 22px'/>");
+			setSelectionRange($('#renameTab')[0], 0, oldname.length);
+		}
+		e.preventDefault();
+	}
+);
+
+$(document).on('click', ':not(#renameTab)',
+	function (e) {
+		if ( $('#renameTab').length > 0 ) {
+			if ( $('#renameTab').val().length > 0 )
+				$('#renameTab').parent().text($('#renameTab').val());
+			else
+				$('#renameTab').parent().text('unnamed');
+		}
+	}
+);
+
+$(document).on('keydown', '#renameTab',
+	function (e) {
+		if (e.which == 13) {
+			if ( $(this).val().length > 0 )
+				$(this).parent().text($(this).val());
+			else
+				$(this).parent().text('unnamed');
+		}
+	}
+);
+
+$(document).on('mousedown', '.tab',
+	function (e) {
+		e.preventDefault();
+	}
+);
+
 $(document).ready(
 	function () {
 		$('textarea').keydown(
@@ -171,7 +210,7 @@ $(document).ready(
 		$(document).on(
 			'click',
 			'.tab',
-			function () {
+			function (e) {
 				if ($(this).attr('id') != 'newpage') {
 					fileData[tabfocused] = $('#codebox').val();
 					$('.tab').removeClass('tabfocused');
